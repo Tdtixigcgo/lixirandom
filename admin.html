@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔐 Admin — Lì Xì 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;600;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c28;
+    --gold: #f1c40f;
+    --gold-dim: #b8860b;
+    --red: #c0392b;
+    --green: #27ae60;
+    --text: #e8e0d0;
+    --text-dim: #8a8090;
+    --border: rgba(241,196,15,0.18);
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Serif SC', serif;
+    min-height: 100vh;
+  }
+
+  /* ── LOGIN ── */
+  #login-screen {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh;
+    background: radial-gradient(ellipse at center, #1a0a00 0%, #0a0a0f 70%);
+  }
+  .login-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 48px 40px;
+    width: 360px;
+    text-align: center;
+    box-shadow: 0 0 60px rgba(241,196,15,0.08);
+  }
+  .login-icon { font-size: 3rem; margin-bottom: 12px; }
+  .login-title {
+    font-family: 'Ma Shan Zheng', cursive;
+    color: var(--gold);
+    font-size: 1.8rem;
+    margin-bottom: 6px;
+  }
+  .login-sub { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 28px; font-family: 'JetBrains Mono', monospace; }
+  .login-box input[type="password"] {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    outline: none;
+    margin-bottom: 14px;
+    transition: border-color 0.2s;
+  }
+  .login-box input:focus { border-color: var(--gold); }
+  .btn { 
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 10px 20px; border-radius: var(--radius);
+    border: none; cursor: pointer; font-size: 0.9rem;
+    font-family: 'Noto Serif SC', serif;
+    transition: all 0.2s; font-weight: 600;
+  }
+  .btn-gold { background: var(--gold); color: #1a0000; }
+  .btn-gold:hover { background: #ffe566; transform: translateY(-1px); }
+  .btn-danger { background: var(--red); color: #fff; }
+  .btn-danger:hover { background: #e74c3c; }
+  .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+  .btn-green { background: var(--green); color: #fff; }
+  .btn-green:hover { background: #2ecc71; }
+  #login-error { color: var(--red); font-size: 0.85rem; margin-top: 10px; min-height: 20px; font-family: 'JetBrains Mono', monospace; }
+
+  /* ── APP ── */
+  #app { display: none; }
+  .admin-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.5);
+  }
+  .admin-logo { font-family: 'Ma Shan Zheng', cursive; color: var(--gold); font-size: 1.4rem; }
+  .admin-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .content { padding: 32px; max-width: 1200px; margin: 0 auto; }
+
+  /* Stats */
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px; margin-bottom: 32px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    transition: border-color 0.2s;
+  }
+  .stat-card:hover { border-color: var(--gold-dim); }
+  .stat-label { font-size: 0.78rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; font-family: 'JetBrains Mono', monospace; }
+  .stat-value { font-family: 'JetBrains Mono', monospace; font-size: 2rem; font-weight: 700; color: var(--gold); }
+  .stat-unit { font-size: 0.85rem; color: var(--text-dim); margin-top: 2px; }
+
+  /* Table section */
+  .table-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .table-header { padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); gap: 12px; flex-wrap: wrap; }
+  .table-title { font-family: 'Ma Shan Zheng', cursive; color: var(--gold); font-size: 1.2rem; }
+  #search-input {
+    padding: 8px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    outline: none; width: 220px;
+    transition: border-color 0.2s;
+  }
+  #search-input:focus { border-color: var(--gold); }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    background: var(--surface2);
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--border);
+    transition: color 0.2s;
+  }
+  th:hover { color: var(--gold); }
+  th.sorted { color: var(--gold); }
+  td { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.88rem; vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(241,196,15,0.03); }
+  .td-mono { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; }
+  .td-amount { font-family: 'JetBrains Mono', monospace; color: var(--green); font-weight: 700; }
+  .td-device { color: var(--text-dim); font-size: 0.75rem; }
+  .empty-row td { text-align: center; padding: 40px; color: var(--text-dim); font-style: italic; }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.75);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .modal-overlay.active { opacity: 1; pointer-events: all; }
+  .modal-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 32px;
+    width: 380px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+    transform: scale(0.95); transition: transform 0.2s;
+  }
+  .modal-overlay.active .modal-box { transform: scale(1); }
+  .modal-title { font-family: 'Ma Shan Zheng', cursive; color: var(--gold); font-size: 1.3rem; margin-bottom: 16px; }
+  .modal-msg { color: var(--text-dim); margin-bottom: 20px; font-size: 0.9rem; line-height: 1.6; }
+  .modal-input {
+    width: 100%; padding: 10px 14px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius); color: var(--text);
+    font-family: 'JetBrains Mono', monospace; font-size: 0.95rem;
+    outline: none; margin-bottom: 16px;
+  }
+  .modal-input:focus { border-color: var(--gold); }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 20px;
+    color: var(--text); font-size: 0.88rem;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    transform: translateY(80px); opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+    z-index: 2000; max-width: 300px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { border-color: var(--green); }
+  .toast.error { border-color: var(--red); }
+
+  @media (max-width: 600px) {
+    .content { padding: 16px; }
+    .admin-header { padding: 12px 16px; }
+    .admin-actions { gap: 6px; }
+    .btn { padding: 8px 12px; font-size: 0.8rem; }
+    .modal-box { width: 90%; padding: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-icon">🔐</div>
+    <h1 class="login-title">Admin Panel</h1>
+    <p class="login-sub">Lì Xì Tết 2026 — Quản trị</p>
+    <input type="password" id="pw-input" placeholder="Nhập mật khẩu..." autocomplete="current-password">
+    <button class="btn btn-gold" style="width:100%" onclick="doLogin()">🔓 Đăng nhập</button>
+    <div id="login-error"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header class="admin-header">
+    <div class="admin-logo">🧧 Admin — Lì Xì 2026</div>
+    <div class="admin-actions">
+      <button class="btn btn-green" onclick="exportCSV()">📥 Xuất CSV</button>
+      <button class="btn btn-outline" onclick="openChangePw()">🔑 Đổi mật khẩu</button>
+      <button class="btn btn-danger" onclick="openReset()">🗑 Reset tất cả</button>
+      <button class="btn btn-outline" onclick="doLogout()">⇠ Đăng xuất</button>
+    </div>
+  </header>
+
+  <div class="content">
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Tổng lượt bốc</div>
+        <div class="stat-value" id="stat-total">0</div>
+        <div class="stat-unit">lượt</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Tổng tiền đã phát</div>
+        <div class="stat-value" id="stat-money">0</div>
+        <div class="stat-unit">đồng</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Hôm nay</div>
+        <div class="stat-value" id="stat-today">0</div>
+        <div class="stat-unit">lượt</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Trung bình</div>
+        <div class="stat-value" id="stat-avg">0</div>
+        <div class="stat-unit">đ/lượt</div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-section">
+      <div class="table-header">
+        <div class="table-title">📋 Danh sách người bốc</div>
+        <input type="text" id="search-input" placeholder="🔍 Tìm theo tên..." oninput="renderTable()">
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th onclick="sortBy('idx')">#</th>
+              <th onclick="sortBy('name')">Tên</th>
+              <th onclick="sortBy('amount')">Số tiền</th>
+              <th onclick="sortBy('deviceId')">Thiết bị ID</th>
+              <th onclick="sortBy('time')">Thời gian</th>
+              <th>Xóa</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Change PW Modal -->
+<div class="modal-overlay" id="modal-pw">
+  <div class="modal-box">
+    <div class="modal-title">🔑 Đổi mật khẩu</div>
+    <p class="modal-msg">Nhập mật khẩu mới cho trang admin:</p>
+    <input type="password" class="modal-input" id="new-pw" placeholder="Mật khẩu mới...">
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModals()">Hủy</button>
+      <button class="btn btn-gold" onclick="doChangePw()">Lưu</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reset Modal -->
+<div class="modal-overlay" id="modal-reset">
+  <div class="modal-box">
+    <div class="modal-title">🗑 Reset toàn bộ dữ liệu</div>
+    <p class="modal-msg">Thao tác này sẽ xóa toàn bộ lịch sử bốc lì xì và mở khóa tất cả thiết bị. <strong>Không thể hoàn tác!</strong></p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModals()">Hủy</button>
+      <button class="btn btn-danger" onclick="doReset()">🗑 Xóa tất cả</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  const DEFAULT_PW = 'admin2026';
+  let loggedIn = false;
+  let sortCol = 'time';
+  let sortAsc = false;
+
+  function getPassword() { return localStorage.getItem('admin_password') || DEFAULT_PW; }
+  function getLog() { return JSON.parse(localStorage.getItem('lixi_log') || '[]'); }
+
+  // Login
+  document.getElementById('pw-input').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+  function doLogin() {
+    const val = document.getElementById('pw-input').value;
+    if (val === getPassword()) {
+      loggedIn = true;
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      loadDashboard();
+    } else {
+      document.getElementById('login-error').textContent = '❌ Sai mật khẩu, thử lại!';
+      document.getElementById('pw-input').value = '';
+    }
+  }
+  function doLogout() {
+    loggedIn = false;
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('pw-input').value = '';
+    document.getElementById('login-error').textContent = '';
+  }
+
+  // Dashboard
+  function loadDashboard() {
+    const log = getLog();
+    const today = new Date().toDateString();
+    const todayLogs = log.filter(r => new Date(r.time).toDateString() === today);
+    const totalMoney = log.reduce((s, r) => s + (r.amount || 0), 0);
+    const avg = log.length ? Math.round(totalMoney / log.length) : 0;
+
+    document.getElementById('stat-total').textContent = log.length;
+    document.getElementById('stat-money').textContent = totalMoney.toLocaleString('vi-VN');
+    document.getElementById('stat-today').textContent = todayLogs.length;
+    document.getElementById('stat-avg').textContent = avg.toLocaleString('vi-VN');
+    renderTable();
+  }
+
+  function renderTable() {
+    const log = getLog();
+    const q = document.getElementById('search-input').value.toLowerCase();
+    let filtered = log.filter(r => (r.name || '').toLowerCase().includes(q));
+
+    // Sort
+    filtered.sort((a, b) => {
+      let va = sortCol === 'idx' ? log.indexOf(a) : a[sortCol];
+      let vb = sortCol === 'idx' ? log.indexOf(b) : b[sortCol];
+      if (typeof va === 'string') va = va.toLowerCase();
+      if (typeof vb === 'string') vb = vb.toLowerCase();
+      if (va < vb) return sortAsc ? -1 : 1;
+      if (va > vb) return sortAsc ? 1 : -1;
+      return 0;
+    });
+
+    const tbody = document.getElementById('table-body');
+    if (!filtered.length) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="6">Chưa có ai bốc lì xì...</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = filtered.map((r, i) => {
+      const t = new Date(r.time);
+      const timeStr = t.toLocaleDateString('vi-VN') + ' ' + t.toLocaleTimeString('vi-VN');
+      const origIdx = log.indexOf(r);
+      return `<tr>
+        <td class="td-mono">${i + 1}</td>
+        <td>${escHtml(r.name || 'Ẩn danh')}</td>
+        <td class="td-amount">${(r.amount || 0).toLocaleString('vi-VN')}đ</td>
+        <td class="td-device td-mono">${escHtml((r.deviceId || '').slice(0, 20))}...</td>
+        <td class="td-mono" style="font-size:0.8rem">${timeStr}</td>
+        <td><button class="btn btn-danger" style="padding:5px 10px;font-size:0.78rem" onclick="deleteRow(${origIdx})">Xóa</button></td>
+      </tr>`;
+    }).join('');
+  }
+
+  function sortBy(col) {
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    renderTable();
+  }
+
+  function deleteRow(idx) {
+    const log = getLog();
+    log.splice(idx, 1);
+    localStorage.setItem('lixi_log', JSON.stringify(log));
+    loadDashboard();
+    showToast('✅ Đã xóa dòng', 'success');
+  }
+
+  // Export CSV
+  function exportCSV() {
+    const log = getLog();
+    if (!log.length) { showToast('Không có dữ liệu để xuất', 'error'); return; }
+    const rows = [['#', 'Tên', 'Số tiền (đ)', 'Thiết bị ID', 'Thời gian']];
+    log.forEach((r, i) => {
+      rows.push([i+1, r.name||'Ẩn danh', r.amount||0, r.deviceId||'', r.time||'']);
+    });
+    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url;
+    a.download = `lixi_log_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click(); URL.revokeObjectURL(url);
+    showToast('📥 Đã xuất CSV', 'success');
+  }
+
+  // Modals
+  function openChangePw() { document.getElementById('modal-pw').classList.add('active'); }
+  function openReset() { document.getElementById('modal-reset').classList.add('active'); }
+  function closeModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); }
+
+  function doChangePw() {
+    const pw = document.getElementById('new-pw').value.trim();
+    if (!pw) { showToast('Mật khẩu không được trống', 'error'); return; }
+    localStorage.setItem('admin_password', pw);
+    closeModals();
+    showToast('🔑 Đã đổi mật khẩu thành công', 'success');
+    document.getElementById('new-pw').value = '';
+  }
+
+  function doReset() {
+    const log = getLog();
+    // Remove all device lock keys
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith('lixi2026_')) keysToRemove.push(k);
+    }
+    keysToRemove.forEach(k => localStorage.removeItem(k));
+    localStorage.removeItem('lixi_log');
+    closeModals();
+    loadDashboard();
+    showToast('🗑 Đã reset toàn bộ dữ liệu', 'success');
+  }
+
+  // Toast
+  let toastTimer;
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `toast ${type} show`;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+</script>
+</body>
+</html>
